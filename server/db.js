@@ -92,6 +92,7 @@ const isValidMinion = (instance) => {
   }
   if (!isNaN(parseFloat(instance.salary)) && isFinite(instance.salary)) {
     instance.salary = Number(instance.salary);
+    
   } else {
     throw new Error('Minion\'s salary must be a number.');
   }
@@ -271,4 +272,5 @@ module.exports = {
   updateInstanceInDatabase,
   deleteFromDatabasebyId,
   deleteAllFromDatabase,
+
 };
