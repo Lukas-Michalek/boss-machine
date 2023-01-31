@@ -14,6 +14,7 @@ const minionsRouter = require('express').Router();
 module.exports = minionsRouter;
 
 
+const { query } = require('express');
 // /api/minions
 
 // GET /api/minions to get an array of all minions.
@@ -31,7 +32,8 @@ const {
     getAllFromDatabase,
     addToDatabase,
     getFromDatabaseById,
-    deleteFromDatabasebyId } = require('./db');
+    deleteFromDatabasebyId,
+    createWork } = require('./db');
 
 // send all minions - GET
 minionsRouter.get('/', (req,res,next) => {    
@@ -111,6 +113,107 @@ minionsRouter.delete('/:minionId', (req,res,next) => {
 })
 
 
+// GET /api/minions/:minionId/work to get an array of all work for the specified minion.
+// POST /api/minions/:minionId/work to create a new work object and save it to the database.
+// PUT /api/minions/:minionId/work/:workId to update a single work by id.
+// DELETE /api/minions/:minionId/work/:workId to delete a single work by id.
+
+// Schema:
+
+// Work:
+//      id: string
+//      title: string
+//      description: string
+//      hours: number
+//      minionId: string
+
+
+
+// minionsRouter.get('/:minionId/work', (req,res,next) => {
+
+//     let work = getAllFromDatabase('work')
+
+//     res.send(work);
+// })
+
+
+// GET /api/minions/:minionId/work to get an array of all work for the specified minion.
+minionsRouter.get('/:minionId/work', (req,res,next) => {
+
+    let work = getAllFromDatabase('work').filter((element) => {
+        return element.minionId === req.minionId
+    })
+
+    res.send(work);
+})
+
+// POST /api/minions/:minionId/work to create a new work object and save it to the database.
+
+minionsRouter.post('/:minionId/work', (req,res,next) => {
+    
+    // when adding new job all fields must be filled => 
+    //  {
+    //    "id": "2",
+    //    "title": "Close deal #3",
+    //    "description": "Close the biggest deal!",
+    //    "hours": 1,
+    //    "minionId": "2"
+    //  }
+
+    let newWork = req.body; // Title, Description, Hours
+    newWork.minionId = req.minionId // minionId filled
+    // id will be added automatically via instance.id = `${model.nextId++}`;
+
+    // Now the I need to add it to database
+    const workAdded = addToDatabase('work', newWork);
+    res.status(201).send(workAdded);
+
+})
+
+
+// To reduce redundancy I will make sure if workId through Router.param
+minionsRouter.param('workId', (req,res,next, workId) => {
+
+    const workFound = getFromDatabaseById('work', workId);
+
+    if(workFound){
+        
+        req.workId = workFound.id;
+        next();
+    }
+    else{
+        res.status(404).send('Work not found!')
+    }
+
+})
+
+// PUT /api/minions/:minionId/work/:workId to update a single work by id.
+minionsRouter.put('/:minionId/work/:workId', (req,res,next) => {
+
+    // lets pick up the work to update
+    
+    const workToUpdate = getFromDatabaseById('work', req.workId)
+
+    workToUpdate.title = req.body.title
+    workToUpdate.description = req.body.description
+    workToUpdate.hours = req.body.hours
+
+    res.send(workToUpdate)
+
+})
+
+
+// DELETE /api/minions/:minionId/work/:workId to delete a single work by id.
+minionsRouter.delete('/:minionId/work/:workId', (req,res,next) => {
+
+        const workToRemove =  getFromDatabaseById('work', req.workId);
+        
+        deleteFromDatabasebyId('work', req.id);
+
+        res.status(204).send();
+
+
+})
 
 
 
