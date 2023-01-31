@@ -7,6 +7,7 @@
 // - DELETE /api/ideas/:ideaId to delete a single idea by id.
 
 const ideasRouter = require('express').Router();
+const checkMillionDollarIdea = require('./checkMillionDollarIdea')
 
 module.exports = ideasRouter;
 
@@ -23,7 +24,7 @@ ideasRouter.get('/', (req,res,next) => {
 })
 
 // - POST /api/ideas to create a new idea and save it to the database.
-ideasRouter.post('/', (req,res,next) => {
+ideasRouter.post('/', checkMillionDollarIdea,(req,res,next) => {
     
     const newIdea = addToDatabase('ideas', req.body);
 
@@ -53,7 +54,7 @@ ideasRouter.get('/:ideaId', (req,res,next) => {
 })
 
 // - PUT /api/ideas/:ideaId to update a single idea by id.
-ideasRouter.put('/:ideaId', (req,res,next) => {
+ideasRouter.put('/:ideaId', checkMillionDollarIdea,(req,res,next) => {
         
         const ideaToUpdate = getFromDatabaseById('ideas',req.ideaId)
 
