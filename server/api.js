@@ -8,12 +8,13 @@ const apiRouter = express.Router();
 // First I need to import Router from their specific files
 
 const minionsRouter = require('./minions');
+const ideasRouter = require('./ideas')
 
 // Now I will mount them to the apiRouter that will be my main Router
 // The process is same as I used to do when main router was app
 
 apiRouter.use('/minions',minionsRouter);
-
+apiRouter.use('/ideas',ideasRouter);
 
 
 module.exports = apiRouter;
